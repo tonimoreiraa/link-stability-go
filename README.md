@@ -1,34 +1,34 @@
-# Network Monitor Tool
+# Ferramenta de monitoramento de rede
 
-A Go-based network monitoring tool that performs latency tests against multiple servers and generates detailed JSON reports.
+Uma ferramenta de monitoramento de rede baseada em Go que realiza testes de latência em vários servidores e gera relatórios JSON detalhados.
 
-## Features
+## Recursos
 
-- Multi-server latency testing
-- Concurrent server checks
-- Configurable retry attempts
-- JSON output format
-- Detailed statistics per address
+- Teste de latência multi-servidor
+- Verificações simultâneas de servidor
+- Tentativas de repetição configuráveis
+- Formato de saída JSON
+- Estatísticas detalhadas por endereço
 
-## Installation
+## Instalação
 
-1. Clone the repository or create the following directory structure:
+1. Clone o repositório ou crie a seguinte estrutura de diretório:
 ```
 network-monitor/
 ├── main.go
 └── servers.json
 ```
 
-2. Build the tool:
+2. Crie a ferramenta:
 ```bash
 go build -o network-monitor main.go
 ```
 
-## Configuration
+## Configuração
 
-### Server Configuration (servers.json)
+### Configuração do servidor (servers.json)
 
-Create a `servers.json` file with your server list:
+Crie um arquivo `servers.json` com sua lista de servidores:
 
 ```json
 [
@@ -45,37 +45,40 @@ Create a `servers.json` file with your server list:
 ]
 ```
 
-### Constants
+### Constantes
 
-The following constants can be modified in the code:
-- `timeoutDuration`: HTTP request timeout (default: 6 seconds)
-- `retryCount`: Number of ping attempts per server (default: 3)
+As seguintes constantes podem ser modificadas no código:
+- `timeoutDuration`: tempo limite de solicitação HTTP (padrão: 6 segundos)
+- `retryCount`: número de tentativas de ping por servidor (padrão: 3)
 
-## Usage
+## Uso
 
-### Basic Usage
+### Uso básico
 
 ```bash
 ./network-monitor 8.8.8.8 1.1.1.1
 ```
 
-### Custom Server File
+### Arquivo de servidor personalizado
 
 ```bash
 ./network-monitor -servers=custom_servers.json 8.8.8.8
 ```
 
-## Output Format
+### Integração com Zabbix
+[Documentação do Zabbix](docs/Zabbix.md)
 
-The tool outputs JSON-formatted results:
+## Formato de saída
+
+A ferramenta gera resultados no formato JSON:
 
 ```json
 [
   {
     "address": "1.1.1.1",
     "min_latency_ms": 15.24,
-    "max_latency_ms": 45.67,
-    "avg_latency_ms": 30.45,
+    "max_latency_ms": 45,67,
+    "avg_latency_ms": 30,45,
     "timeout_count": 1,
     "online_count": 5,
     "offline_count": 0,
@@ -88,7 +91,7 @@ The tool outputs JSON-formatted results:
           {
             "index": 0,
             "type": "online",
-            "latency_ms": 15.24,
+            "latency_ms": 15,24,
             "server_id": 1
           }
         ]
@@ -98,27 +101,23 @@ The tool outputs JSON-formatted results:
 ]
 ```
 
-### Response Types
+### Tipos de resposta
 
-- `online`: Server responded successfully
-- `timeout`: Server response exceeded timeout duration
-- `server-offline`: Test server could not be reached
+- `online`: O servidor respondeu com sucesso
+- `timeout`: A resposta do servidor excedeu a duração do tempo limite
+- `server-offline`: O servidor de teste não pôde ser alcançado
 
-## Troubleshooting
+## Solução de problemas
 
-### Common Issues
+### Problemas comuns
 
-1. "Error parsing servers JSON":
-   - Verify servers.json format matches the example above
-   - Check JSON syntax
+1. **Erro ao analisar o JSON dos servidores:**
+   - Verifique se o formato servers.json corresponde ao exemplo acima
+   - Verifique a sintaxe JSON
 
-2. "No addresses provided":
-   - Ensure at least one IP address is provided as argument
+2. **Nenhum endereço fornecido:**
+   - Certifique-se de que pelo menos um endereço IP seja fornecido como argumento
 
-3. "Error reading servers file":
-   - Verify servers.json exists in the correct location
-   - Check file permissions
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
+3. **Erro ao ler o arquivo servers:**
+   - Verifique se servers.json existe no local correto
+   - Verifique as permissões do arquivo
