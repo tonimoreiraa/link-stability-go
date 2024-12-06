@@ -77,8 +77,8 @@ A ferramenta gera resultados no formato JSON:
   {
     "address": "1.1.1.1",
     "min_latency_ms": 15.24,
-    "max_latency_ms": 45,67,
-    "avg_latency_ms": 30,45,
+    "max_latency_ms": 45.67,
+    "avg_latency_ms": 30.45,
     "timeout_count": 1,
     "online_count": 5,
     "offline_count": 0,
@@ -91,7 +91,7 @@ A ferramenta gera resultados no formato JSON:
           {
             "index": 0,
             "type": "online",
-            "latency_ms": 15,24,
+            "latency_ms": 15.24,
             "server_id": 1
           }
         ]
