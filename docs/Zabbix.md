@@ -38,7 +38,7 @@
      - **Pré-processamento**: JSON Path  
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.offline_count
+       $[0].offline_count
        ```
 
    - **Total Requests**  
@@ -46,7 +46,7 @@
      - **Pré-processamento**: JSON Path  
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.total_count
+       $[0].total_count
        ```
 
    - **Online Count**  
@@ -54,7 +54,7 @@
      - **Pré-processamento**: JSON Path  
      - **Tipo de Informação**: Númerico (inteiro sem sinal) 
        ```json
-       $.online_count
+       $[0].online_count
        ```
 
    - **Timeout Count**  
@@ -62,7 +62,7 @@
      - **Pré-processamento**: JSON Path
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.timeout_count
+       $[0].timeout_count
        ```
 
    - **Average Latency**  
@@ -70,7 +70,7 @@
      - **Pré-processamento**: JSON Path
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.avg_latency_ms
+       $[0].avg_latency_ms
        ```
 
    - **Address**  
@@ -78,7 +78,7 @@
      - **Pré-processamento**: JSON Path
      - **Tipo de Informação**: Texto
        ```json
-       $.address
+       $[0].address
        ```
 
    - **Min Latency**  
@@ -86,7 +86,7 @@
      - **Pré-processamento**: JSON Path
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.min_latency_ms
+       $[0].min_latency_ms
        ```
 
    - **Max Latency**
@@ -94,7 +94,7 @@
      - **Pré-processamento**: JSON Path
      - **Tipo de Informação**: Númerico (inteiro sem sinal)  
        ```json
-       $.max_latency_ms
+       $[0].max_latency_ms
        ```
 
 ---
