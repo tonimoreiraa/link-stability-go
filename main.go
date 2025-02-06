@@ -178,7 +178,7 @@ func testAddress(address string, servers []Server) AddressReport {
 }
 
 func main() {
-	serversFile := flag.String("servers", "servers.json", "Path to servers JSON file")
+	serversFile := flag.String("servers", "/usr/lib/zabbix/externalscripts/servers.json", "Path to servers JSON file")
 	flag.Parse()
 	
 	addresses := flag.Args()
