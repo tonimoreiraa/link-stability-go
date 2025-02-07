@@ -1,87 +1,141 @@
 package main
 
 import (
-	"encoding/json"
-	"flag"
-	"fmt"
-	"net/http"
-	"os"
-	"sync"
+    "encoding/json"
+    "flag"
+    "fmt"
+    "io"
+    "net/http"
+    "os"
+    "sync"
 	"time"
 )
 
-type Server struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	Address string `json:"address"`
-}
+const (
+    retryCount = 3
+    timeout  = 5 * time.Second
+)
 
-type Response struct {
-	Index    int     `json:"index"`
-	Type     string  `json:"type"`
-	Latency  float64 `json:"latency_ms"`
-	ServerID int     `json:"server_id"`
+type Server struct {
+    ID      int    `json:"id"`
+    Address string `json:"address"`
 }
 
 type ServerResult struct {
-	ServerID      int        `json:"server_id"`
-	ServerAddress string     `json:"server_address"`
-	Responses     []Response `json:"responses"`
+    ServerID      int        `json:"server_id"`
+    ServerAddress string     `json:"server_address"`
+    Responses     []Response `json:"responses"`
 }
 
 type AddressReport struct {
-	Address      string         `json:"address"`
-	MinLatency   float64       `json:"min_latency_ms"`
-	MaxLatency   float64       `json:"max_latency_ms"`
-	AvgLatency   float64       `json:"avg_latency_ms"`
-	TimeoutCount int           `json:"timeout_count"`
-	OnlineCount  int           `json:"online_count"`
-	OfflineCount int           `json:"offline_count"`
-	TotalCount   int           `json:"total_count"`
-	Servers      []ServerResult `json:"servers"`
+    Address      string         `json:"address"`
+    MinLatency   float64       `json:"min_latency"`
+    MaxLatency   float64       `json:"max_latency"`
+    AvgLatency   float64       `json:"avg_latency"`
+    TimeoutCount int           `json:"timeout_count"`
+    OnlineCount  int           `json:"online_count"`
+    OfflineCount int           `json:"offline_count"`
+    TotalCount   int           `json:"total_count"`
+    Servers      []ServerResult `json:"servers"`
 }
 
-const (
-	timeoutDuration = 6 * time.Second
-	retryCount     = 3
-)
+type PingResponse struct {
+    Datetime string `json:"datetime"`
+    Err      *struct {
+        Message string `json:"message"`
+        Name    string `json:"name"`
+    } `json:"err"`
+    Ms     int64  `json:"ms"`
+    Query  Query  `json:"query"`
+    SID    int64  `json:"sID"`
+    Target string `json:"target"`
+    TTL    int    `json:"ttl"`
+}
+
+type Query struct {
+    NPing string `json:"nPing"`
+    TrID  string `json:"trID"`
+}
+
+type Response struct {
+    Index    int     `json:"index"`
+    Type     string  `json:"type"`
+    Latency  float64 `json:"latency"`
+    ServerID int     `json:"server_id"`
+}
+
 
 func pingServer(serverID int, serverAddr string, targetAddr string, index int) Response {
-	url := fmt.Sprintf("http://%s/PING/%s?trID=%d&nPing=1", serverAddr, targetAddr, index)
-	
-	client := &http.Client{
-		Timeout: timeoutDuration,
+    // Construct the ping URL
+    url := fmt.Sprintf("http://%s/PING/%s?trID=%d&nPing=1", serverAddr, targetAddr, index)
+    
+    // Initialize HTTP client
+    client := &http.Client{
+		Timeout: timeout,
 	}
-	
-	start := time.Now()
-	resp, err := client.Get(url)
-	latency := time.Since(start).Milliseconds()
-	
-	if err != nil {
-		return Response{
-			Index:    index,
-			Type:     "server-offline",
-			Latency:  -1,
-			ServerID: serverID,
-		}
-	}
-	defer resp.Body.Close()
-	
-	if resp.StatusCode != http.StatusOK {
-		return Response{
-			Index:    index,
-			Type:     "timeout",
-			Latency:  float64(latency),
-			ServerID: serverID,
-		}
-	}
-	
-	return Response{
-		Index:    index,
-		Type:     "online",
-		Latency:  float64(latency),
-		ServerID: serverID,
-	}
+    
+    // Create and execute the request
+    req, err := http.NewRequest("GET", url, nil)
+    if err != nil {
+        return Response{
+            Index:    index,
+            Type:     "server-offline",
+            Latency:  -1,
+            ServerID: serverID,
+        }
+    }
+    
+    // Execute the request
+    resp, err := client.Do(req)
+    if err != nil {
+        return Response{
+            Index:    index,
+            Type:     "server-offline",
+            Latency:  -1,
+            ServerID: serverID,
+        }
+    }
+    defer resp.Body.Close()
+    
+    // Read response body
+    body, err := io.ReadAll(resp.Body)
+    if err != nil {
+        return Response{
+            Index:    index,
+            Type:     "server-offline",
+            Latency:  -1,
+            ServerID: serverID,
+        }
+    }
+    
+    // Parse JSON response
+    var pingResp PingResponse
+    if err := json.Unmarshal(body, &pingResp); err != nil {
+        return Response{
+            Index:    index,
+            Type:     "server-offline",
+            Latency:  -1,
+            ServerID: serverID,
+        }
+    }
+    
+    // Handle response based on error presence
+    if pingResp.Err != nil {
+        return Response{
+            Index:    index,
+            Type:     "timeout",
+            Latency:  float64(pingResp.Ms),
+            ServerID: serverID,
+        }
+    }
+    
+    // Return successful response
+    return Response{
+        Index:    index,
+        Type:     "online",
+        Latency:  float64(pingResp.Ms),
+        ServerID: serverID,
+    }
 }
 
 func testServer(server Server, targetAddr string) ServerResult {
